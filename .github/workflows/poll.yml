@@ -5,6 +5,7 @@ on: [push]
 jobs:
   run-malicious-plugin:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -14,10 +15,17 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Downgrade pip
+      - name: Downgrade pip (avoid 24.x breakage)
         run: pip install "pip<24.1"
 
-      - name: Install panoptes (patched)
+      - name: Install OpenSSL 1.1 (for net-snmp compatibility)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libssl1.1 libssl-dev
+          echo "/usr/lib/x86_64-linux-gnu" | sudo tee -a /etc/ld.so.conf.d/openssl-1.1.conf
+          sudo ldconfig
+
+      - name: Install Panoptes (patched)
         run: pip install .
 
       - name: Run malicious plugin
