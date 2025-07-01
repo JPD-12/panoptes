@@ -45,10 +45,12 @@ jobs:
         run: |
           python3 -m pip install pbr wheel
 
-      - name: Install Panoptes in editable mode
+      - name: Install Panoptes with dependencies
         run: |
+          # First install without dependencies
           python3 -m pip install -e . --no-deps
-          python3 -m pip install -r requirements.txt
+          # Then install dependencies from setup.py
+          python3 -m pip install -e .
 
       - name: Run tests
         run: |
