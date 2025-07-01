@@ -10,16 +10,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
-      - name: Downgrade pip
+      - name: Downgrade pip (avoid pip 24+ issues)
         run: pip install "pip<24.1"
 
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y libssl1.1 libssl-dev
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libssl1.1 libssl-dev build-essential
 
       - name: Install Panoptes (patched)
         run: pip install .
