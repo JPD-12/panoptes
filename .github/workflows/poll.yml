@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # Required for pbr versioning
 
       - name: Install system dependencies
         run: |
@@ -29,27 +29,26 @@ jobs:
 
       - name: Configure environment
         run: |
-          # Use older OpenSSL compatible with Net-SNMP 5.7.3
-          export CFLAGS="-Wno-error=deprecated-declarations"
-          export CPPFLAGS="-Wno-error=deprecated-declarations"
+          # Downgrade pip to version that accepts older metadata formats
+          python3 -m pip install --upgrade "pip<24.1"
+          # Install compatible setuptools version
+          python3 -m pip install "setuptools<58.0.0"
 
-      - name: Install Python dependencies
+      - name: Install Celery 4.4.7 first (with relaxed checks)
         run: |
-          python3 -m pip install --upgrade pip
-          pip install wheel setuptools pbr
+          python3 -m pip install \
+            --no-deps \
+            --ignore-requires-python \
+            "celery==4.4.7"
 
-      - name: Patch Net-SNMP source
+      - name: Install remaining dependencies
         run: |
-          # Fix OpenSSL compatibility issues
-          find . -name 'keytools.c' -exec sed -i \
-            -e 's/EVP_MD_CTX_cleanup/EVP_MD_CTX_reset/g' \
-            -e 's/malloc(sizeof(\*ctx))/EVP_MD_CTX_new()/g' \
-            {} \;
+          python3 -m pip install pbr wheel
 
-      - name: Install Panoptes
+      - name: Install Panoptes in editable mode
         run: |
-          pip install --ignore-installed PyOpenSSL
-          pip install -e . --verbose
+          python3 -m pip install -e . --no-deps
+          python3 -m pip install -r requirements.txt
 
       - name: Run tests
         run: |
