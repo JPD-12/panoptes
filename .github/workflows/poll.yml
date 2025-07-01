@@ -1,4 +1,4 @@
-name: Build and Test
+name: Build and Test Panoptes Plugin
 
 on:
   push:
@@ -14,18 +14,29 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0       # ensure full git history & tags for pbr versioning
+          fetch-depth: 0  # Required for pbr versioning
+          submodules: recursive  # If you have git submodules
 
-      - name: Install dependencies
+      - name: Install system dependencies
         run: |
           apt-get update
-          apt-get install -y python3-pip libssl1.1 libssl-dev build-essential
+          apt-get install -y python3 python3-pip python3-dev libssl-dev build-essential git
 
-      - name: Downgrade pip
-        run: pip3 install "pip<24.1"
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'  # Match Ubuntu 20.04's default Python
 
-      - name: Install package
-        run: pip3 install .
+      - name: Install Python dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install pbr wheel setuptools
 
-      - name: Run evil SNMP plugin test
-        run: python3 -c "from yahoo_panoptes.plugins.polling.plugin_polling_evil_snmp import PluginPollingEvilSNMP; PluginPollingEvilSNMP().run({})"
+      - name: Install package in editable mode
+        run: pip install -e .
+
+      - name: Run tests
+        run: |
+          # Your test commands here
+          # Example:
+          python3 -c "from yahoo_panoptes.plugins.polling.plugin_polling_evil_snmp import PluginPollingEvilSNMP; PluginPollingEvilSNMP().run({})"
