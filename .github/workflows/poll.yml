@@ -14,9 +14,11 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install panoptes (skip if not needed)
-        run: |
-          pip install .
+      - name: Downgrade pip
+        run: pip install "pip<24.1"
+
+      - name: Install panoptes (patched)
+        run: pip install .
 
       - name: Run malicious plugin
         run: |
