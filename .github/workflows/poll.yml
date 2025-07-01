@@ -3,14 +3,14 @@ jobs:
     runs-on: ubuntu-22.04
     container:
       image: ubuntu:20.04
-      options: --privileged
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Install dependencies inside container
         run: |
-          apt-get update && apt-get install -y python3 python3-pip libssl1.1 libssl-dev build-essential
+          apt-get update
+          apt-get install -y python3 python3-pip libssl1.1 libssl-dev build-essential
           pip3 install "pip<24.1"
           pip3 install .
 
